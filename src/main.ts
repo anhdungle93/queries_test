@@ -3,6 +3,7 @@ import sqlite3 from "sqlite3";
 
 import { createSchema } from "./schema";
 import { getPendingOrders } from "./queries/order_queries";
+import { alertStaleOrders } from "./slack";
 
 async function main() {
   const db = await open({
@@ -14,7 +15,7 @@ async function main() {
 
   const pendingOrders = await getPendingOrders(db);
   const staleOrders = pendingOrders.filter((o) => o.days_since_created > 3);
-  console.log("Orders pending longer than 3 days:", staleOrders);
+  await alertStaleOrders(staleOrders);
 }
 
 main();
